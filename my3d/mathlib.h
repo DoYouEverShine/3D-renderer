@@ -17,7 +17,14 @@ typedef vector_t point_t;
 typedef struct { float r, g, b; } color_t;
 typedef struct { float u, v; } texcoord_t;
 typedef vector_t point_t;
-typedef struct { point_t pos;  color_t base_color;color_t light_color; float rhw; } vertex_t,*vertex_t_ptr;
+typedef struct 
+{ 
+	point_t pos;  
+	vector_t n;
+	color_t base_color;
+	color_t light_color; 
+	float rhw; 
+} vertex_t,*vertex_t_ptr;
 typedef struct
 {
 	int state;
@@ -47,10 +54,18 @@ public:
 	static void vector_normalize(vector_t *y, vector_t *x)
 	{
 		float s = vector_length(x);
+		if (FCMP(s, 0)) return;
 		y->x = x->x / s;
 		y->y = x->y / s;
 		y->z = x->z / s;
 		y->w = 1.0f;
+	}
+	static void vector_add(vector_t *res, const vector_t *a, const vector_t *b)
+	{
+		res->x = a->x + b->x;
+		res->y = a->y + b->y;
+		res->z = a->z + b->z;
+		res->w = 1.0f;
 	}
 	static void vector_sub(vector_t *res, const vector_t *a, const vector_t *b)
 	{
@@ -69,6 +84,13 @@ public:
 		res->y = a->z*b->x - a->x*b->z;
 		res->z = a->x*b->y - a->y*b->x;
 		res->w = 1.0f;
+	}
+	static void vector_get_norm(vector_t *n,const vertex_t *a, const vertex_t *b, const vertex_t *c)
+	{
+		vector_t  u, v;
+		Vector::vector_sub(&u, &b->pos, &a->pos);
+		Vector::vector_sub(&v, &c->pos, &b->pos);
+		Vector::vector_crossproduct(n, &v, &u);
 	}
 };
 class Matrix

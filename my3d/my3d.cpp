@@ -164,16 +164,15 @@ void screen_update(void) {
 //	{ { 1, 1, -1, 1 },  { 0.2f, 1.0f, 0.3f }, 1 },
 //};
 ploy_t ploygon[12];
-int ploy_num = 12;
 vertex_t mesh[8] = {
-	{ { 1, -1, 1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, -1, 1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, 1, 1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, 1, 1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, -1, -1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, -1, -1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, 1, -1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, 1, -1, 1 }, { 0.3f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { 1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f,0.0f },{ 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { -1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { -1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { 1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { 1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { -1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { -1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { 1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
 };
 //void draw_plane(device_t *device, int a, int b, int c, int d)
 //{
@@ -184,7 +183,7 @@ vertex_t mesh[8] = {
 //}
 void draw_plane(device_t *device, ploy_t *ploygon)
 {
-	for (int i = 0; i < ploy_num; ++i)
+	for (int i = 0; i < PLOY_NUM; ++i)
 	{
 		auto tmp = (ploygon + i);
 		Device::device_draw_primitive(device, tmp->vlist + tmp->vert[0], tmp->vlist + tmp->vert[1], tmp->vlist + tmp->vert[2]);
@@ -206,11 +205,13 @@ void camera_at_zero(device_t *device, float x, float y, float z)
 void init_light()
 {
 	RGBAV1 white; white.r = 255; white.g = 255; white.b = 255; white.a = 0; 
-	RGBAV1 yellow; yellow.r = 255; yellow.g = 255; yellow.b = 0; yellow.a = 0;
+	RGBAV1 yellow; yellow.r = 128; yellow.g = 128; yellow.b = 0; yellow.a = 0;
+	RGBAV1 red; red.r = 255; red.g = 0; red.b = 0; red.a = 0;
+
 	RGBAV1 NONE; NONE.rgba = 0;
 	RGBAV1 white_half; white_half.r = 128; white_half.g = 128; white_half.b = 128; white_half.a = 0;
-	point_t spot_pos = { 2, 0, 0, 0 };
-	vector_t spot_dir = { 1, 1, 1, 0 };
+	point_t spot_pos = { 2, 2, 2, 0 };
+	vector_t spot_dir = { 1,1, 1, 0 };
 	vector_t sun_dir = { 0, 1, 0, 0 };
 	vector_t sun_pos = { 0, 5, 5, 0 };
 	int ambient_light = light.Init_Light_LIGHTV1(
@@ -223,17 +224,17 @@ void init_light()
 		0, 0, 0),
 		sun_light = light.Init_Light_LIGHTV1(
 		1,
-		LIGHT_STATE_OFF,
+		LIGHT_STATE_ON,
 		LIGHT_ATTR_INFINITE,
-		NONE, yellow, NONE,
+		NONE, yellow, red,
 		NULL, &sun_dir,
 		0, 0, 0,
 		0, 0, 0),
 		sun_spot_light = light.Init_Light_LIGHTV1(
 		2,
-		LIGHT_STATE_ON,
-		LIGHT_ATTR_SPOTLIGHT1,
-		NONE, white, NONE,
+		LIGHT_STATE_OFF,
+		LIGHT_ATTR_SPOTLIGHT2,
+		NONE, yellow, red,
 		&spot_pos, &spot_dir,
 		0, 0.3, 0.1,
 		30, 60, 1);
@@ -252,7 +253,7 @@ void init_object()
 	ploygon[9].vlist = mesh; ploygon[9].vert[0] = 7; ploygon[9].vert[1] = 3; ploygon[9].vert[2] = 2;
 	ploygon[10].vlist = mesh; ploygon[10].vert[0] = 3; ploygon[10].vert[1] = 7; ploygon[10].vert[2] = 4;
 	ploygon[11].vlist = mesh; ploygon[11].vert[0] = 4; ploygon[11].vert[1] = 0; ploygon[11].vert[2] = 3;
-
+	Device::device_init_vertex_norm(ploygon);
 }
 int main(void)
 {
@@ -273,7 +274,9 @@ int main(void)
 		
 		screen_dispatch();
 		Device::device_clear(&device);
-		camera_at_zero(&device, pos, 0.0f, 0.0f);
+		//camera_at_zero(&device, pos, 0.0f, 0.0f);
+		camera_at_zero(&device, 0.0f, 4.0f, 0.0f);
+
 		if (screen_keys[VK_UP]) pos -= 0.01f;
 		if (screen_keys[VK_DOWN]) pos += 0.01f;
 		if (screen_keys[VK_LEFT]) alpha -= 0.01f;

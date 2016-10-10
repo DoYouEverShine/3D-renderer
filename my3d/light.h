@@ -79,6 +79,9 @@ public:
 		vertex_t*,
 		vertex_t*,
 		vertex_t*,
+		vector_t*,
+		vector_t*,
+		vector_t*,
 		point_t*);
 private:
 	MATV1 materials[MAX_MATERIALS];

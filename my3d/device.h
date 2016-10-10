@@ -23,7 +23,8 @@ typedef struct
 
 
 
-
+#define PLOY_NUM					12
+#define MESH_NUM					8
 #define RENDER_STATE_WIREFRAME      1		// ‰÷»æœﬂøÚ
 #define RENDER_STATE_TEXTURE        2		// ‰÷»æŒ∆¿Ì
 #define RENDER_STATE_COLOR          4		// ‰÷»æ—’…´
@@ -57,7 +58,25 @@ public:
 		return 1;
 	}
 
-
+	static void device_init_vertex_norm(ploy_t *ploy)
+	{
+		for (int i = 0; i < PLOY_NUM; ++i)
+		{
+			vector_t n;
+			auto tmp = (ploy + i);
+			Vector::vector_get_norm(&n,tmp->vlist + tmp->vert[0], tmp->vlist + tmp->vert[1], tmp->vlist + tmp->vert[2]);
+			Vector::vector_add(&(tmp->vlist + tmp->vert[0])->n,&( tmp->vlist + tmp->vert[0])->n, &n);
+			Vector::vector_add(&(tmp->vlist + tmp->vert[1])->n, &(tmp->vlist + tmp->vert[1])->n, &n);
+			Vector::vector_add(&(tmp->vlist + tmp->vert[2])->n, &(tmp->vlist + tmp->vert[2])->n, &n);
+		}
+		for (int i = 0; i < MESH_NUM; ++i)
+		{
+			auto tmp = (ploy + i);
+			Vector::vector_normalize(&(tmp->vlist + tmp->vert[0])->n, &(tmp->vlist + tmp->vert[0])->n);
+			Vector::vector_normalize(&(tmp->vlist + tmp->vert[1])->n, &(tmp->vlist + tmp->vert[1])->n);
+			Vector::vector_normalize(&(tmp->vlist + tmp->vert[2])->n, &(tmp->vlist + tmp->vert[2])->n);
+		}
+	}
 	static void device_pixel(device_t *device, int x, int y, IUINT32 color) {
 		if (((IUINT32)x) < (IUINT32)device->width && ((IUINT32)y) < (IUINT32)device->height && x >= 0 && y >= 0) {
 			device->framebuffer[y][x] = color;
@@ -148,12 +167,6 @@ public:
 		{
 			float factor = 0;
 			if (!FCMP(lenY,0)) factor = (float)(i - b->pos.y) / lenY;
-			if (factor > max) 
-			{ 
-				max = factor; 
-				printf("%0.2f %d %0.2f\n", factor, i, b->pos.y);
-			}
-
 			vertex_t xa, xb;
 			device_interp(&xa, b, a, factor);
 			device_interp(&xb, &middle, a, factor);
@@ -188,11 +201,16 @@ public:
 	static void device_draw_primitive(device_t *device, const  vertex_t *v1, const  vertex_t *v2, const vertex_t *v3)
 	{
 		vertex_t p1, p2, p3, c1, c2, c3;
+		vector_t n1, n2, n3;
 		int render_state = device->render_state;
 		Transform::transform_apply_world(&device->transform, &c1, v1);
 		Transform::transform_apply_world(&device->transform, &c2, v2);
 		Transform::transform_apply_world(&device->transform, &c3, v3);                  //≥À“‘ ”Õºæÿ’Û v * world * view * projection
-		light.Light_Renderer(&c1, &c2, &c3, &cam);
+		Transform::transform_apply_world_v(&device->transform, &n1, &v1->n);
+		Transform::transform_apply_world_v(&device->transform, &n2, &v2->n);
+		Transform::transform_apply_world_v(&device->transform, &n3, &v3->n);                  //≥À“‘ ”Õºæÿ’Û v * world * view * projection
+
+		light.Light_Renderer(&c1, &c2, &c3,&n1,&n2,&n3, &cam);
 		Transform::transform_apply_view_projection(&device->transform, &c1, &c1);
 		Transform::transform_apply_view_projection(&device->transform, &c2, &c2);
 		Transform::transform_apply_view_projection(&device->transform, &c3, &c3);                  //≥À“‘ ”Õºæÿ’Û v * world * view * projection

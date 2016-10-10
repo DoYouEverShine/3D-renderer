@@ -48,6 +48,10 @@ public:
 		y->light_color.g = x->light_color.g;
 		y->light_color.b = x->light_color.b;
 	}
+	static void transform_apply_world_v(transform_t *m, vector_t *y, const vector_t *x)
+	{
+		Matrix::matrix_apply(&m->world, y, x);
+	}
 	static void transform_apply_view_projection(transform_t *m, vertex_t *y, const vertex_t *x)
 	{
 		Matrix::matrix_apply(&m->view, &y->pos, &x->pos);

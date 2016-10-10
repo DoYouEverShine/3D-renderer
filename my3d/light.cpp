@@ -68,7 +68,21 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 				r_sum += lights[curr_light].c_diffuse.r*r_base*i;
 				g_sum += lights[curr_light].c_diffuse.g*g_base*i;
 				b_sum += lights[curr_light].c_diffuse.b*b_base*i;
+				//镜面反射光
+				vector_t vl,eye_dir; float error;
+				Vector::vector_sub(&eye_dir, eye, &v->pos);
+				Vector::vector_normalize(&eye_dir, &eye_dir);
+				Vector::vector_add(&vl, &eye_dir, &lights[curr_light].dir);
+				Vector::vector_normalize(&vl, &vl);
+				if ((error = Vector::vector_dotproduct(&vl, n)) > 0)
+				{
+					i = error / (nl);
+					r_sum += lights[curr_light].c_specular.r*r_base*i;
+					g_sum += lights[curr_light].c_specular.g*g_base*i;
+					b_sum += lights[curr_light].c_specular.b*b_base*i;
+				}
 			}
+
 		}
 		if (ATTR == LIGHT_ATTR_POINT)
 		{
@@ -84,10 +98,23 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 				r_sum += lights[curr_light].c_diffuse.r*r_base*i;
 				g_sum += lights[curr_light].c_diffuse.g*g_base*i;
 				b_sum += lights[curr_light].c_diffuse.b*b_base*i;
+				//镜面反射光
+				vector_t vl, eye_dir; float error;
+				Vector::vector_sub(&eye_dir, eye, &v->pos);
+				Vector::vector_normalize(&eye_dir, &eye_dir);
+				Vector::vector_add(&vl, &eye_dir, &l);
+				Vector::vector_normalize(&vl, &vl);
+				if ((error = Vector::vector_dotproduct(&vl, n)) > 0)
+				{
+					i = error / (nl);
+					r_sum += lights[curr_light].c_specular.r*r_base*i;
+					g_sum += lights[curr_light].c_specular.g*g_base*i;
+					b_sum += lights[curr_light].c_specular.b*b_base*i;
+				}
 			}
 		}
-		if (ATTR == LIGHT_ATTR_SPOTLIGHT1)
-		{
+		if (ATTR == LIGHT_ATTR_SPOTLIGHT1)                       //不推荐使用
+		{ 
 			nl = Vector::vector_length(n);
 			vector_t l;
 			Vector::vector_sub(&l, &v->pos, &lights[curr_light].pos);
@@ -124,6 +151,21 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 					r_sum += lights[curr_light].c_diffuse.r*r_base*i;
 					g_sum += lights[curr_light].c_diffuse.g*g_base*i;
 					b_sum += lights[curr_light].c_diffuse.b*b_base*i;
+
+					//镜面反射光
+					vector_t vl, eye_dir; float error;
+					Vector::vector_sub(&eye_dir, eye, &v->pos);
+					Vector::vector_normalize(&eye_dir, &eye_dir);
+
+					Vector::vector_add(&vl, &eye_dir, &lights[curr_light].dir);
+					Vector::vector_normalize(&vl, &vl);
+					if ((error = Vector::vector_dotproduct(&vl, n)) > 0)
+					{
+						i = error *dpsl_exp/ (nl*atten);
+						r_sum += lights[curr_light].c_specular.r*r_base*i;
+						g_sum += lights[curr_light].c_specular.g*g_base*i;
+						b_sum += lights[curr_light].c_specular.b*b_base*i;
+					}
 				}
 			}
 		}
@@ -136,14 +178,11 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 	v->light_color.b = b_sum / 255.0f;
 	return 1;
 }
-int Light::Light_Renderer(vertex_t* a, vertex_t* b, vertex_t* c, point_t* eye)
+int Light::Light_Renderer(vertex_t* a, vertex_t* b, vertex_t* c, vector_t *na, vector_t *nb, vector_t *nc,point_t* eye)
 {
-	vector_t n, u, v;
-	Vector::vector_sub(&u, &b->pos, &a->pos);
-	Vector::vector_sub(&v, &c->pos, &b->pos);
-	Vector::vector_crossproduct(&n, &v, &u);
-	Light_Renderer_vertex(a,&n, eye);
-	Light_Renderer_vertex(b,&n, eye);
-	Light_Renderer_vertex(c,&n, eye);
+
+	Light_Renderer_vertex(a,na, eye);
+	Light_Renderer_vertex(b,nb, eye);
+	Light_Renderer_vertex(c,nc, eye);
 	return 1;
 }
