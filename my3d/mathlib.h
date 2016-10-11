@@ -8,6 +8,7 @@
 #define FCMP(a,b) (fabs(a-b)<eps)
 
 
+typedef unsigned int IUINT32;
 typedef struct {
 	float m[4][4];
 }matrix_t;
@@ -23,6 +24,7 @@ typedef struct
 	vector_t n;
 	color_t base_color;
 	color_t light_color; 
+	texcoord_t texture;
 	float rhw; 
 } vertex_t,*vertex_t_ptr;
 typedef struct

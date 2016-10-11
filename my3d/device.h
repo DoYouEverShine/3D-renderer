@@ -6,7 +6,7 @@
 #include"mathlib.h"
 #include"transform.h"
 #include"light.h"
-typedef unsigned int IUINT32;
+#include"texture.h"
 extern point_t cam;
 
 typedef struct
@@ -19,6 +19,7 @@ typedef struct
 	int render_state;           // 渲染状态
 	IUINT32 foreground;
 	IUINT32 background;
+	Texture tex;
 }device_t;
 
 
@@ -77,6 +78,8 @@ public:
 			Vector::vector_normalize(&(tmp->vlist + tmp->vert[2])->n, &(tmp->vlist + tmp->vert[2])->n);
 		}
 	}
+
+
 	static void device_pixel(device_t *device, int x, int y, IUINT32 color) {
 		if (((IUINT32)x) < (IUINT32)device->width && ((IUINT32)y) < (IUINT32)device->height && x >= 0 && y >= 0) {
 			device->framebuffer[y][x] = color;
@@ -101,6 +104,8 @@ public:
 		y->light_color.r = x2->light_color.r * factor + x1->light_color.r * ifactor;
 		y->light_color.g = x2->light_color.g * factor + x1->light_color.g * ifactor;
 		y->light_color.b = x2->light_color.b * factor + x1->light_color.b * ifactor;
+		y->texture.u = x2->texture.u *  factor + x1->texture.u * ifactor;
+		y->texture.v = x2->texture.v *  factor + x1->texture.v * ifactor;
 		y->rhw = x2->rhw * factor + x1->rhw * ifactor;
 	}
 
@@ -137,17 +142,27 @@ public:
 		vertex_t *tmp = NULL;
 		if (s->pos.x > e->pos.x){ tmp = s; s = e; e = tmp; }
 		int startX = s->pos.x + 0.5, endX = e->pos.x + 0.5;
+		float lenX = s->pos.x - e->pos.x;
 		for (int i = startX; i <= endX; ++i)
 		{
 			float factor = 0;
-			if (startX != endX)  factor = (float)(i - endX) / (startX - endX);
+			if (!FCMP(lenX,0))  factor = (float)(i - e->pos.x) / lenX;
 			vertex_t point;
 			device_interp(&point, e, s, factor);
-			int R = point.light_color.r *255.0f;
-			int G = point.light_color.g *255.0f;
-			int B = point.light_color.b *255.0f;
-			int c = (R << 16) | (G << 8) | B;
-			device_pixel(device, i, y, c);
+			if (device->render_state == RENDER_STATE_COLOR)
+			{
+				int R = point.light_color.r *255.0f;
+				int G = point.light_color.g *255.0f;
+				int B = point.light_color.b *255.0f;
+				int c = (R << 16) | (G << 8) | B;
+
+				device_pixel(device, i, y, c);
+			}
+			else
+			{
+				IUINT32 c = tex.texture_get(point.texture.u, point.texture.v);
+				device_pixel(device, i, y,c );
+			}
 		}
 	}
 	static void device_draw_triangle(device_t *device, vertex_t *a, vertex_t *b, vertex_t *c)           //    a
@@ -163,10 +178,14 @@ public:
 		float mid = (b->pos.y - c->pos.y) / (a->pos.y - c->pos.y), lenY = (a->pos.y - b->pos.y);
 		device_interp(&middle, c, a, mid);
 		int startY = a->pos.y, endY = b->pos.y+1;
-		for (int i = startY; i >= endY; --i)
+		for (int i = endY; i <=startY ; ++i)
 		{
 			float factor = 0;
 			if (!FCMP(lenY,0)) factor = (float)(i - b->pos.y) / lenY;
+			if (FCMP(factor, 0.5f))
+			{
+				int paus = 1;
+			}
 			vertex_t xa, xb;
 			device_interp(&xa, b, a, factor);
 			device_interp(&xb, &middle, a, factor);
@@ -175,7 +194,7 @@ public:
 		startY = b->pos.y;
 		endY = c->pos.y+1;
 		lenY = (b->pos.y - c->pos.y);
-		for (int i = startY; i >= endY; --i)
+		for (int i = endY; i <= startY; ++i)
 		{
 			float factor = 0;
 			if (!FCMP(lenY, 0))  factor = (float)(i - c->pos.y) / lenY;
@@ -211,16 +230,16 @@ public:
 		Transform::transform_apply_world_v(&device->transform, &n3, &v3->n);                  //乘以视图矩阵 v * world * view * projection
 
 		light.Light_Renderer(&c1, &c2, &c3,&n1,&n2,&n3, &cam);
-		Transform::transform_apply_view_projection(&device->transform, &c1, &c1);
-		Transform::transform_apply_view_projection(&device->transform, &c2, &c2);
-		Transform::transform_apply_view_projection(&device->transform, &c3, &c3);                  //乘以视图矩阵 v * world * view * projection
+		Transform::transform_apply_view_projection(&device->transform, &p1, &c1);
+		Transform::transform_apply_view_projection(&device->transform, &p2, &c2);
+		Transform::transform_apply_view_projection(&device->transform, &p3, &c3);                  //乘以视图矩阵 v * world * view * projection
 
-		Transform::transform_homogenize(&device->transform, &p1, &c1);                 //除以齐次坐标项并转换为屏幕坐标
-		Transform::transform_homogenize(&device->transform, &p2, &c2);
-		Transform::transform_homogenize(&device->transform, &p3, &c3);
+		Transform::transform_homogenize(&device->transform, &p1, &p1);                 //除以齐次坐标项并转换为屏幕坐标
+		Transform::transform_homogenize(&device->transform, &p2, &p2);
+		Transform::transform_homogenize(&device->transform, &p3, &p3);
 		point_t n = { 0, 0, -1, 1 };
 		if (device_backface_judge(&p1.pos, &p2.pos, &p3.pos, &n)) return;
-		if (render_state == RENDER_STATE_COLOR)
+		if (render_state &( RENDER_STATE_COLOR | RENDER_STATE_TEXTURE))
 		{
 			device_draw_triangle(device, &p1, &p2, &p3);
 		}

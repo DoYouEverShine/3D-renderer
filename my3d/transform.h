@@ -37,6 +37,9 @@ public:
 		y->light_color.r = x->light_color.r;
 		y->light_color.g = x->light_color.g;
 		y->light_color.b = x->light_color.b;
+
+		y->texture.u = x->texture.u;
+		y->texture.v = x->texture.v;
 	}
 	static void transform_apply_world(transform_t *m, vertex_t *y, const vertex_t *x)
 	{
@@ -47,6 +50,9 @@ public:
 		y->light_color.r = x->light_color.r;
 		y->light_color.g = x->light_color.g;
 		y->light_color.b = x->light_color.b;
+
+		y->texture.u = x->texture.u;
+		y->texture.v = x->texture.v;
 	}
 	static void transform_apply_world_v(transform_t *m, vector_t *y, const vector_t *x)
 	{
@@ -62,6 +68,9 @@ public:
 		y->light_color.r = x->light_color.r;
 		y->light_color.g = x->light_color.g;
 		y->light_color.b = x->light_color.b;
+
+		y->texture.u = x->texture.u;
+		y->texture.v = x->texture.v;
 	}
 	static void transform_homogenize(transform_t *ts, vertex_t *y, const vertex_t *x)
 	{
@@ -76,6 +85,8 @@ public:
 		y->light_color.r = x->light_color.r;
 		y->light_color.g = x->light_color.g;
 		y->light_color.b = x->light_color.b;
+		y->texture.u = x->texture.u;
+		y->texture.v = x->texture.v;
 	}
 };
 #endif

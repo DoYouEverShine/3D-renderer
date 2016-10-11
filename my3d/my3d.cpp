@@ -6,6 +6,7 @@
 #include <tchar.h>
 #include"mathlib.h"
 #include"transform.h"
+#include"texture.h"
 #include"device.h"
 #include"light.h"
 #include"ploygon.h"
@@ -153,45 +154,34 @@ void screen_update(void) {
 //=====================================================================
 // Ö÷³ÌÐò
 //=====================================================================
-//vertex_t mesh[8] = {
-//	{ { 1, -1, 1, 1 }, { 1.0f, 0.2f, 0.2f }, 1 },
-//	{ { -1, -1, 1, 1 },  { 0.2f, 1.0f, 0.2f }, 1 },
-//	{ { -1, 1, 1, 1 },  { 0.2f, 0.2f, 1.0f }, 1 },
-//	{ { 1, 1, 1, 1 },  { 1.0f, 0.2f, 1.0f }, 1 },
-//	{ { 1, -1, -1, 1 }, { 1.0f, 1.0f, 0.2f }, 1 },
-//	{ { -1, -1, -1, 1 }, { 0.2f, 1.0f, 1.0f }, 1 },
-//	{ { -1, 1, -1, 1 },  { 1.0f, 0.3f, 0.3f }, 1 },
-//	{ { 1, 1, -1, 1 },  { 0.2f, 1.0f, 0.3f }, 1 },
-//};
+
 ploy_t ploygon[12];
 vertex_t mesh[8] = {
-	{ { 1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f,0.0f },{ 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { -1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
-	{ { 1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, 1 },
+	{ { 1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, {0.0f,0.0f},1 },         //0
+	{ { -1, -1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },    //1
+	{ { -1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },     //2
+	{ { 1, 1, 1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },      //3
+	{ { 1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },    //4
+	{ { -1, -1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },   //5
+	{ { -1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },    //6
+	{ { 1, 1, -1, 1 }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.3f, 0.3f, 0.3f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 1 },     //7
 };
-//void draw_plane(device_t *device, int a, int b, int c, int d)
-//{
-//	vertex_t p1, p2, p3,p4;
-//	p1 = mesh[a]; p2 = mesh[b]; p3 = mesh[c]; p4 = mesh[d];
-//	Device::device_draw_primitive(device, &p1,&p2,&p3);
-//	Device::device_draw_primitive(device, &p3, &p4, &p1);
-//}
+
 void draw_plane(device_t *device, ploy_t *ploygon)
 {
-	for (int i = 0; i < PLOY_NUM; ++i)
+	for (int i = 0; i < 1;++i)// PLOY_NUM; ++i)
 	{
 		auto tmp = (ploygon + i);
+		(tmp->vlist + tmp->vert[0])->texture.u = 0; (tmp->vlist + tmp->vert[0])->texture.v = 0;
+		(tmp->vlist + tmp->vert[1])->texture.u = 1,(tmp->vlist + tmp->vert[1])->texture.v = 0;
+		(tmp->vlist + tmp->vert[2])->texture.u = 1; (tmp->vlist + tmp->vert[2])->texture.v = 1;
 		Device::device_draw_primitive(device, tmp->vlist + tmp->vert[0], tmp->vlist + tmp->vert[1], tmp->vlist + tmp->vert[2]);
+
 	}
 }
 void draw_box(device_t *device, float angle)
 {
-	Matrix::matrix_set_rotation(&device->transform.world, 1,-1, -1, angle);
+	Matrix::matrix_set_rotation(&device->transform.world, 0,1, 0, angle);
 	Transform::transform_update(&device->transform);
 	draw_plane(device, ploygon);
 }
@@ -202,7 +192,7 @@ void camera_at_zero(device_t *device, float x, float y, float z)
 	Matrix::matrix_set_lookat(&device->transform.view, &eye, &at, &up);
 	Transform::transform_update(&device->transform);
 }
-void init_light()
+void init_light(device_t *device)
 {
 	RGBAV1 white; white.r = 255; white.g = 255; white.b = 255; white.a = 0; 
 	RGBAV1 yellow; yellow.r = 128; yellow.g = 128; yellow.b = 0; yellow.a = 0;
@@ -239,7 +229,7 @@ void init_light()
 		0, 0.3, 0.1,
 		30, 60, 1);
 }
-void init_object()
+void init_object(device_t *device)
 {
 	ploygon[0].vlist = mesh; ploygon[0].vert[0] = 0; ploygon[0].vert[1] = 1; ploygon[0].vert[2] = 2; 
 	ploygon[1].vlist = mesh; ploygon[1].vert[0] = 2; ploygon[1].vert[1] = 3; ploygon[1].vert[2] = 0;
@@ -255,6 +245,7 @@ void init_object()
 	ploygon[11].vlist = mesh; ploygon[11].vert[0] = 4; ploygon[11].vert[1] = 0; ploygon[11].vert[2] = 3;
 	Device::device_init_vertex_norm(ploygon);
 }
+
 int main(void)
 {
 	device_t device;
@@ -262,20 +253,20 @@ int main(void)
 		_T("Left/Right: rotation, Up/Down: forward/backward, Space: switch state");
 	int states[] = { RENDER_STATE_TEXTURE, RENDER_STATE_COLOR, RENDER_STATE_WIREFRAME };
 	int kbhit = 0;
-	float alpha = 0.0f;
+	float alpha = -0.5f;
 	float pos = 3.5f;
 	int indicator = 0;
 	if (screen_init(800, 600, title))
 		return -1;
 	Device::device_init(&device, 800, 600, screen_fb);
-	init_light();
-	init_object();
+	init_light(&device);
+	init_object(&device);
+	tex.texture_init();
 	while (screen_exit == 0 && screen_keys[VK_ESCAPE] == 0) {
 		
 		screen_dispatch();
 		Device::device_clear(&device);
-		//camera_at_zero(&device, pos, 0.0f, 0.0f);
-		camera_at_zero(&device, 0.0f, 4.0f, 0.0f);
+		camera_at_zero(&device, pos, 0.0f, 0.0f);
 
 		if (screen_keys[VK_UP]) pos -= 0.01f;
 		if (screen_keys[VK_DOWN]) pos += 0.01f;
