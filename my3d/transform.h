@@ -62,31 +62,18 @@ public:
 	{
 		Matrix::matrix_apply(&m->view, &y->pos, &x->pos);
 		Matrix::matrix_apply(&m->projection, &y->pos, &y->pos);
-		y->base_color.r = x->base_color.r;
-		y->base_color.g = x->base_color.g;
-		y->base_color.b = x->base_color.b;
-		y->light_color.r = x->light_color.r;
-		y->light_color.g = x->light_color.g;
-		y->light_color.b = x->light_color.b;
-
-		y->texture.u = x->texture.u;
-		y->texture.v = x->texture.v;
 	}
 	static void transform_homogenize(transform_t *ts, vertex_t *y, const vertex_t *x)
 	{
-		float rhw = 1.0f / x->pos.w;
-		y->pos.x = (x->pos.x * rhw + 1.0f) *ts->w * 0.5f;
-		y->pos.y = (1.0f - x->pos.y * rhw) *ts->h * 0.5f;
-		y->pos.z = x->pos.z * rhw;
-		y->pos.w = 1.0f;
-		y->base_color.r = x->base_color.r;
-		y->base_color.g = x->base_color.g;
-		y->base_color.b = x->base_color.b;
-		y->light_color.r = x->light_color.r;
-		y->light_color.g = x->light_color.g;
-		y->light_color.b = x->light_color.b;
-		y->texture.u = x->texture.u;
-		y->texture.v = x->texture.v;
+		y->rhw = 1.0f / x->pos.w;
+		y->pos.x = (x->pos.x * y->rhw + 1.0f) *ts->w * 0.5f;
+		y->pos.y = (1.0f - x->pos.y * y->rhw) *ts->h * 0.5f;
+		y->pos.z = x->pos.z * y->rhw;
+		y->light_color.r *= y->rhw;
+		y->light_color.g *= y->rhw;
+		y->light_color.b *= y->rhw;
+		y->texture.u *= y->rhw;
+		y->texture.v *= y->rhw;
 	}
 };
 #endif

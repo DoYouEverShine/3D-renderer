@@ -1,6 +1,35 @@
 #include"light.h"
 #include<cstdio>
-Light light;
+//Light light;
+Light::Light()
+{
+	RGBAV1 white; white.r = 255; white.g = 255; white.b = 255; white.a = 0;
+	RGBAV1 yellow; yellow.r = 0; yellow.g = 128; yellow.b = 0; yellow.a = 0;
+	RGBAV1 red; red.r = 128; red.g = 0; red.b = 0; red.a = 0;
+
+	RGBAV1 NONE; NONE.rgba = 0;
+	RGBAV1 white_half; white_half.r = 128; white_half.g = 128; white_half.b = 128; white_half.a = 0;
+	point_t spot_pos = { 0, 3, 0, 0 };
+	vector_t spot_dir = { 0, 1, 0, 0 };
+	vector_t sun_dir = { 0, 1, 0, 0 };
+	vector_t sun_pos = { 0, 5, 5, 0 };
+	int ambient_light = Init_Light_LIGHTV1(
+		0,
+		LIGHT_STATE_ON,
+		LIGHT_ATTR_AMBIENT,
+		white_half, NONE, NONE,
+		NULL, NULL,
+		0, 0, 0,
+		0, 0, 0),
+		sun_spot_light = Init_Light_LIGHTV1(
+		2,
+		LIGHT_STATE_ON,
+		LIGHT_ATTR_SPOTLIGHT2,
+		NONE, yellow, red,
+		&spot_pos, &spot_dir,
+		0, 0.3, 0.1,
+		30, 60, 1);
+}
 int Light::Init_Light_LIGHTV1(
 	int				index,
 	int				_state,
@@ -159,9 +188,16 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 
 					Vector::vector_add(&vl, &eye_dir, &lights[curr_light].dir);
 					Vector::vector_normalize(&vl, &vl);
-					if ((error = Vector::vector_dotproduct(&vl, n)) > 0)
+					error = Vector::vector_dotproduct(&vl, n)/nl;
+					error *= error;
+					error *= error;
+					error *= error;
+					error *= error;
+					error *= error;
+					//error *= error;
+					if ( error> 0)
 					{
-						i = error *dpsl_exp/ (nl*atten);
+						i = error *dpsl_exp/ (atten);
 						r_sum += lights[curr_light].c_specular.r*r_base*i;
 						g_sum += lights[curr_light].c_specular.g*g_base*i;
 						b_sum += lights[curr_light].c_specular.b*b_base*i;
@@ -180,7 +216,6 @@ int Light::Light_Renderer_vertex(vertex_t* v,vector_t* n,point_t* eye)
 }
 int Light::Light_Renderer(vertex_t* a, vertex_t* b, vertex_t* c, vector_t *na, vector_t *nb, vector_t *nc,point_t* eye)
 {
-
 	Light_Renderer_vertex(a,na, eye);
 	Light_Renderer_vertex(b,nb, eye);
 	Light_Renderer_vertex(c,nc, eye);

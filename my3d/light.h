@@ -56,6 +56,7 @@ typedef struct
 class Light
 {
 public:
+	Light();
 	int Init_Light_LIGHTV1(
 		int,                       //光源id
 		int,                       //光源状态
@@ -83,6 +84,7 @@ public:
 		vector_t*,
 		vector_t*,
 		point_t*);
+	int mark_v[8200];
 private:
 	MATV1 materials[MAX_MATERIALS];
 	int num_materials;
@@ -90,5 +92,5 @@ private:
 	LIGHTV1 lights[MAX_LIGHTS];
 	int num_lights;
 };
-extern Light light;
+//extern Light light;
 #endif

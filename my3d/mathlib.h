@@ -4,7 +4,7 @@
 
 
 #define pi 3.141592
-#define eps 0.001
+#define eps 0.0001
 #define FCMP(a,b) (fabs(a-b)<eps)
 
 
@@ -23,21 +23,14 @@ typedef struct
 	point_t pos;  
 	vector_t n;
 	color_t base_color;
+	color_t eig_color;
 	color_t light_color; 
 	texcoord_t texture;
 	float rhw; 
 } vertex_t,*vertex_t_ptr;
 typedef struct
 {
-	int state;
-	int attr;
-	int color;
-	int lit_color[3];
-	int mati;
-	vertex_t_ptr vlist;
 	int vert[3];
-	int text[3];
-	float nlength;
 }ploy_t,*ploy_t_ptr;
 class Vector
 {
